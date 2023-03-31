@@ -2,31 +2,56 @@ import { createWebHistory, createRouter } from "vue-router";
 
 const routes = [
     {
-        path: "/gallery",
-        name: "gallery",
-        component: () => import("@/views/Gallery.vue"),
+        path:"/admin",
+        component: () => import("../components/admins/layouts/Layout.vue"),
+        children: [
+            {
+                path: "dashboard",
+                name: "dashboard",
+                component: () => import("../views/admins/Dashboard.vue"),
+                meta: {description: 'Tổng quan'}
+            },
+            {
+                path: "rooms",
+                name: "admin.room",
+                component: () => import("@/views/admins/rooms/Room.vue"),
+                meta: {description: 'Phòng'}
+            },
+            {
+                path: "bookings",
+                name: "admin.booking",
+                component: () => import("@/views/admins/bookings/Booking.vue"),
+                meta: {description: 'Đơn đặt'}
+            },
+        ]
     },
     {
         path: "/",
-        name: "room",
-        component: () => import("@/views/Room.vue"),
+        component: () => import("../components/users/layouts/Layout.vue"),
+        children: [
+            {
+                path: "/",
+                name: "home",
+                component: () => import("@/views/users/Home.vue"),
+            },
+            {
+                path: "/rooms",
+                name: "room",
+                component: () => import("@/views/users/Room.vue"),
+            },
+            {
+                path: "/gallery",
+                name: "gallery",
+                component: () => import("@/views/users/Gallery.vue"),
+            },
+            {
+                path: "/:pathMatch(.*)*",
+                name: "notfound",
+                component: () => import("@/views/NotFound.vue"),
+            }
+        ]
+        
     },
-    {
-        path: "/add",
-        name: "room.add",
-        component: () => import("@/views/RoomAdd.vue"),
-    },
-    {
-        path: "/rooms/:id",
-        name: "room.edit",
-        component: () => import("@/views/RoomEdit.vue"),
-        props: true // Truyền các biến trong $route.params vào làm props
-    },
-    {
-        path: "/:pathMatch(.*)*",
-        name: "notfound",
-        component: () => import("@/views/NotFound.vue"),
-    }
 ];
 
 const router = createRouter({
