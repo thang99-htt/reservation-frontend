@@ -48,7 +48,7 @@
                         <h5 class="modal-title" id="updateAddressModalLabel">Thêm phòng mới</h5>
                         <button type="button" class="btn-close"  @click="closeModel"></button>
                     </div>
-                    <div class="modal-body">{{ room }}
+                    <div class="modal-body">
                         <RoomForm 
                             :room="room"
                             @submit:room="createRoom"

@@ -5,8 +5,16 @@ class RoomService {
         this.api = createApiClient(baseUrl);
     }
 
-    async getAll() {
-        return (await this.api.get("/")).data;
+    async getAll(capacity, type) {
+        let query = "";
+        if (capacity && type) {
+          query = `?capacity=${capacity}&type=${type}`;
+        } else if (capacity) {
+          query = `?capacity=${capacity}`;
+        } else if (type) {
+          query = `?type=${type}`;
+        }
+        return (await this.api.get(`/${query}`)).data;
     }
     async create(data) {
         return (await this.api.post("/", data)).data;

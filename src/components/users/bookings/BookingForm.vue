@@ -1,4 +1,12 @@
-<template>{{ customerLocal }}
+<template>
+    <div class="row mb-3">
+        <div class="col-6"><p>Ngày nhận phòng: {{ searchLocal.checkin_date }}</p></div>
+        <div class="col-6"><p>Ngày trả phòng: {{ searchLocal.checkout_date }}</p></div>
+        <div class="col-6"><p>Giá phòng: {{ formatPrice(roomLocal.price) }}</p></div>
+        <div class="col-6"><p>Thuế và phí dịch vụ: 250.000</p></div>
+        <div class="col-6"><p>Số người ở: {{ searchLocal.num_of_guests }}</p></div>
+        <div class="col-6"> <p>Tổng giá trị: {{ formatPrice(roomLocal.price + 250000) }} VNĐ</p></div>
+    </div>
     <Form
         @submit="submitBooking"
         :validation-schema="customerFormSchema"
@@ -64,8 +72,9 @@
             Field,
             ErrorMessage,
         },
-        emits: ["submit:booking"],
+        emits: ["submitBooking"],
         props: {
+            search: { type: Object, required: true },
             room: { type: Object, required: true },
             customer: { type: Object, required: true },
             booking: { type: Object, required: true },
@@ -90,6 +99,7 @@
             });
             return {
                 customerFormSchema,
+                searchLocal: this.search,
                 customerLocal: this.customer,
                 roomLocal: this.room,
                 bookingLocal: this.booking,
@@ -97,12 +107,19 @@
         },
         methods: {
             submitBooking() {
-                this.$emit("submit:booking", this.bookingLocal);
+                const data = {
+                    customer: this.customerLocal,
+                    booking: this.bookingLocal
+                };
+                this.$emit("submitBooking", data);
             },
             // reset () {
             //     this.customerLocal.phone = "";
             //     this.customerLocal.address = "";
             // },
+            formatPrice(value) {
+                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            },
         },
     };
 </script>

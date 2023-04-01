@@ -1,15 +1,57 @@
+<template>
+    <Form
+        @submit="submitSearch"
+    > 
+        <div class="search-room">
+            <div class="d-flex flex-xl-row flex-column align-items-start justify-content-start">
+                <div class="booking_input_container d-flex flex-lg-row flex-column align-items-start justify-content-start">
+                    <div>
+                        <input 
+                            type="text" onfocus="(this.type='date')" 
+                            class="datepicker booking_input booking_input_a booking_in" 
+                            placeholder="Ngày nhận"
+                            v-model="searchLocal.checkin_date">
+                    </div>
+                    <div>
+                        <input 
+                            type="text" onfocus="(this.type='date')" 
+                            class="datepicker booking_input booking_input_a booking_out" 
+                            placeholder="Ngày trả"
+                            v-model="searchLocal.checkout_date"
+                            >
+                        </div>
+                    <div>
+                        <select name="" id="" class="booking_input booking_input_b" v-model="searchLocal.num_of_guests">
+                            <option disabled value="">Số người</option>
+                            <option v-for="number in numbers" :value="number">{{ number }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select name="" id="" class="booking_input booking_input_b" v-model="searchLocal.type">
+                            <option disabled value="">Phòng</option>
+                            <option v-for="typ in types" :value="typ">{{ typ }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div><button class="booking_button trans_200" @click="submit">Tìm kiếm</button></div>
+            </div>
+        </div>
+    </Form>    
+</template>
+
 <script>
     import { Form, Field, ErrorMessage } from "vee-validate";
 
     export default {
         props: {
-            modelValue: { type: String, default: "" },
+            search: { type: String, default: "" },
         },
-        emits: ["submit", "update:modelValue"],
+        emits: ["submitSearch"],
         data() {            
             return {
                 numbers: [1, 2, 3, 4],
-                selectedNumber: 1,
+                types: ['Nghỉ dưỡng', 'Thượng hạng', 'Biệt thự'],
+                searchLocal: this.search
             };
         },
         components: {
@@ -18,53 +60,12 @@
             ErrorMessage,
         },
         methods: {
-            updateModelValue(e) {
-                this.$emit("update:modelValue", e.target.value);
-            },
-            submit() {
-                this.$emit("submit");
+            submitSearch() {
+                this.$emit("submitSearch", this.searchLocal);
             },
         },
     };
 </script>
-
-<template>
-    <div class="search-room">
-        <div class="d-flex flex-xl-row flex-column align-items-start justify-content-start">
-            <div class="booking_input_container d-flex flex-lg-row flex-column align-items-start justify-content-start">
-                <div>
-                    <input 
-                        type="text" onfocus="(this.type='date')" 
-                        class="datepicker booking_input booking_input_a booking_in" 
-                        placeholder="Ngày nhận"
-                        v-model="dateCheckin">
-                </div>
-                <div>
-                    <input 
-                        type="text" onfocus="(this.type='date')" 
-                        class="datepicker booking_input booking_input_a booking_out" 
-                        placeholder="Ngày trả"
-                        v-model="dateCheckout"
-                        >
-                    </div>
-                <div>
-                    <select name="" id="" class="booking_input booking_input_b">
-                        <option disabled selected>Số người</option>
-                        <option v-for="number in numbers" :value="number">{{ number }}</option>
-                    </select>
-                </div>
-                <div>
-                    <select name="" id="" class="booking_input booking_input_b">
-                        <option disabled selected>Phòng</option>
-                        <option v-for="number in numbers" :value="number">{{ number }}</option>
-                    </select>
-                </div>
-            </div>
-            <div><button class="booking_button trans_200" @click="submit">Tìm kiếm</button></div>
-        </div>
-    </div>
-    
-</template>
 
 <style>
 #number-select {

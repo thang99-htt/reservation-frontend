@@ -23,6 +23,9 @@ class BookingService {
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
     }
+    async updateStatus(id, data) {
+        return (await this.api.put(`/update-status/${id}`, data)).data;
+    }
 }
 
 export default new BookingService();

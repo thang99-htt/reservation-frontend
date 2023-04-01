@@ -5,7 +5,7 @@
         <div class="accordion mt-3">
             <div
                 class="accordion-item"
-                v-for="(room, index) in rooms"
+                v-for="(room, index) in roomsList"
                 :key="room._id"
             >
                 <div class="accordion-content">
@@ -89,7 +89,7 @@
                             <p class="discount">GIẢM GIÁ THÀNH VIÊN</p>
                             <p class="special">5%</p>
                             <p>Chưa bao gồm thuế và phí dịch vụ</p>
-                            <button :disabled="!room.is_available" @click="openModel(room._id)"><span>Đặt ngay</span></button>
+                            <button @click="openModel(room._id)"><span>Đặt ngay</span></button>
                         </div>
                     </div>
                 </div>
@@ -108,9 +108,10 @@
                         <div class="modal-body">
                             <BookingForm 
                                 :room="room"
+                                :search="search"
                                 :customer="customer"
                                 :booking="booking"
-                                @submit:customer="createBooking"
+                                @submitBooking="createBooking"
                             />
                         </div>
                     </div>
@@ -123,11 +124,13 @@
 <script>
     import BookingForm from "@/components/users/bookings/BookingForm.vue";
     import CustomerService from "@/services/customer.service";
+    import BookingService from "@/services/booking.service";
     import RoomService from "@/services/room.service";
 
     export default {
         props: {
             rooms: { type: Array, default: [] },
+            search: { type: Array, default: [] },
         },
         components: {
             BookingForm
@@ -161,52 +164,97 @@
                 },
                 room: null,
                 booking: {
-                    'checkin_date': "2022-12-22",
-                    'checkout_date': "2022-12-23",
+                    'checkin_date': "",
+                    'checkout_date': "",
                     'customer_id': "",
                     'room_id': "",
-                    'num_of_guests': "",
+                    'num_of_guests': 2,
                     'total_price': "",
+                    'status': 'Đang chờ xử lý'
                 },
+                roomsList: this.rooms,
+                searchLocal: this.search,
             }
         },
         methods: {
             async openModel(id) {
                 await RoomService.get(id).then((response) => {
-                    this.room = response;
-                    this.booking.room_id = response._id;
+                    if(response.is_available == false) {
+                        const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                                
+                            })
+                            Toast.fire({
+                                icon: 'warning',
+                                title: 'Phòng này không còn trống. Vui lòng chọn phòng khác!'
+                            })  
+                        this.myModel = false;
+
+                    }
+                    else {
+                        this.room = response;
+                        this.booking.checkin_date = this.search.checkin_date;
+                        this.booking.checkout_date = this.search.checkout_date;
+                        this.booking.num_of_guests = this.search.num_of_guests;
+                        this.booking.room_id = response._id;
+                        this.booking.total_price = response.price;
+
+                        this.myModel = true;
+                    }
                 });
-                this.myModel = true;
             },
             closeModel() {
                 this.myModel = false;
+                this.reset();
             },
             formatPrice(value) {
                 return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             },
+            reset() {
+                this.customer.name = "",
+                this.customer.email = "",
+                this.customer.phone = ""
+            },
             async createBooking(data) {
                 try {      
-                    console.log(data)
-                    await CustomerService.create(data).then((response) => {
-                            console.log(response);
-                            const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                                toast.addEventListener('mouseenter', Swal.stopTimer)
-                                toast.addEventListener('mouseleave', Swal.resumeTimer)
-                            }
+                    await CustomerService.create(data.customer).then(async (response) => {
+                            this.booking.customer_id = response._id;
+
+                            await BookingService.create(data.booking).then(async (response1) => {
+                                const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                                
+                            })
+
+                            this.roomsList = await RoomService.getAll();
+
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Đặt phòng thành công.'
+                            })  
+
+                            this.myModel = false;
+                            this.reset();
                         })
 
-                        Toast.fire({
-                            icon: 'success',
-                            title: 'Đặt phòng thành công.'
-                        })  
                     });  
-                    // this.myModel = false;
+                    
 
                 } catch (error) {
                     console.log(error);

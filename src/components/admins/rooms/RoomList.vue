@@ -123,12 +123,14 @@
                     this.room = response;
                 });
                 this.myModel = true; 
+                this.$nextTick(() => {
+                    $('.example1').DataTable()
+                });
             },
             async closeModel() {
                 this.myModel = false;
                 // gán lại giá trị cho roomsList
                 this.roomsList = await RoomService.getAll();
-                // cập nhật lại DataTable
                 this.$nextTick(() => {
                     $('.example1').DataTable()
                 });
