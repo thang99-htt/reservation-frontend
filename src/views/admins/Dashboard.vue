@@ -1,7 +1,7 @@
 <template>
     <div class="container-fluid">
       <div class="row column1 mt-5">
-          <div class="col-md-6 col-lg-3">
+          <div class="col-3">
             <div class="full counter_section margin_bottom_30">
                 <div class="couter_icon col-3">
                   <div> 
@@ -10,13 +10,13 @@
                 </div>
                 <div class="counter_no col-9">
                   <div>
-                      <p class="total_no">3333</p>
-                      <p class="head_couter">Tổng doanh thu</p>
+                      <p class="total_no">{{ formatNumber(revenue) }}</p>
+                      <p class="head_couter">Doanh thu</p>
                   </div>
                 </div>
             </div>
           </div>
-          <div class="col-md-6 col-lg-3">
+          <div class="col-3">
             <div class="full counter_section margin_bottom_30">
                 <div class="couter_icon col-3">
                   <div> 
@@ -25,13 +25,13 @@
                 </div>
                 <div class="counter_no col-9">
                   <div>
-                      <p class="total_no">3333</p>
+                      <p class="total_no">{{ bookings.length }}</p>
                       <p class="head_couter">Đơn đặt</p>
                   </div>
                 </div>
             </div>
           </div>
-          <div class="col-md-6 col-lg-3">
+          <div class="col-3">
             <div class="full counter_section margin_bottom_30">
                 <div class="couter_icon col-3">
                   <div> 
@@ -40,13 +40,13 @@
                 </div>
                 <div class="counter_no col-9">
                   <div>
-                      <p class="total_no">3333</p>
+                      <p class="total_no">{{ rooms.length }}</p>
                       <p class="head_couter">Phòng</p>
                   </div>
                 </div>
             </div>
           </div>
-          <div class="col-md-6 col-lg-3">
+          <div class="col-3">
             <div class="full counter_section margin_bottom_30">
                 <div class="couter_icon col-3">
                   <div> 
@@ -55,7 +55,7 @@
                 </div>
                 <div class="counter_no col-9">
                   <div>
-                      <p class="total_no">3333</p>
+                      <p class="total_no">{{ customers.length }}</p>
                       <p class="head_couter">Khách hàng</p>
                   </div>
                 </div>
@@ -63,35 +63,71 @@
           </div>
       </div>
 
-      <div class="row column2 graph margin_bottom_30">
-          <div class="col-md-l2 col-lg-12">
-            <div class="white_shd full">
-                <div class="full graph_head">
-                  <div class="heading1 margin_0">
-                      <h2>Extra Area Chart</h2>
-                  </div>
-                </div>
-                <div class="full graph_revenue">
-                  <div class="row">
-                      <div class="col-md-12">
-                        <div class="content">
-                            <div class="area_chart">
-                              <canvas height="120" id="canvas"></canvas>
-                            </div>
-                        </div>
-                      </div>
-                  </div>
-                </div>
-            </div>
-          </div>
-      </div>
-
-        <!-- <apexchart type="line" height="350" :options="chartOptions" :series="chartSeries"></apexchart>
+      <apexchart type="line" height="350" :options="chartOptions" :series="chartSeries"></apexchart>
         <div class="mt-5">
           <apexchart type="bar" height="350" :options="chartOptions" :series="chartSeries" />
-        </div> -->
+        </div>
     </div>
 </template>
-<style scoped>
-    
-</style>
+
+<script>
+    import CustomerService from "@/services/customer.service";
+    import RoomService from "@/services/room.service";
+    import BookingService from "@/services/booking.service";
+
+    export default {
+        data() {
+            return {
+                customers: [],
+                rooms: [],
+                bookings: [],
+                revenue: 0,
+                chartOptions: {
+                  chart: {
+                    id: 'revenue-chart',
+                  },
+                  xaxis: {
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                  },
+                },
+                chartSeries: [{
+                  name: 'Doanh thu',
+                  data: [],
+                }],
+            };
+        },
+        methods: {
+            async retrieveStatisticals() {
+                try {
+                    this.customers = await CustomerService.getAll();
+                    this.rooms = await RoomService.getAll();
+                    await BookingService.getAll().then((response) => {
+                      this.bookings = response;
+                      const revenueByMonth = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+                      response.forEach(index=>{
+                        this.revenue = this.revenue + index.total_price;
+
+                        const checkoutMonth = new Date(index.checkout_date).getMonth();
+                        revenueByMonth[checkoutMonth] += index.total_price;
+                        
+                      });
+                      for (let i = 0; i < revenueByMonth.length; i++) {
+                        this.chartSeries[0].data.push(revenueByMonth[i]);
+                      }
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+            formatNumber(value) {
+              if (!value) return ''
+              return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            
+        },
+        mounted() {
+            this.retrieveStatisticals();
+        },
+    };
+</script>

@@ -11,6 +11,12 @@ class CustomerService {
     async create(data) {
         return (await this.api.post("/", data)).data;
     }
+    async login(data) {
+        return (await this.api.post("/login", data)).data;
+    }
+    async register(data) {
+        return (await this.api.post("/register", data)).data;
+    }
     async deleteAll() {
         return (await this.api.delete("/")).data;
     }
@@ -22,6 +28,9 @@ class CustomerService {
     }
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
+    }
+    async updateStatus(id, data) {
+        return (await this.api.put(`/update-status/${id}`, data)).data;
     }
 }
 

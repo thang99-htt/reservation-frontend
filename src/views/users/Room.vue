@@ -34,10 +34,11 @@
             return {
                 rooms: [],
                 search: {
-                    checkin_date: "",
-                    checkout_date: "",
-                    num_of_guests:"",
-                    type: ""
+                    checkin_date: new Date().toISOString().slice(0, 10),
+                    checkout_date: new Date(new Date().getTime() + 86400000).toISOString().slice(0, 10),
+                    num_of_guests: "",
+                    type: "",
+                    status: ""
                 },
             };
         },
@@ -58,7 +59,7 @@
         methods: {
             async retrieveRooms() {
                 try {
-                    this.rooms = await RoomService.getAll(this.search.num_of_guests, this.search.type);
+                    this.rooms = await RoomService.getAll(this.search.num_of_guests, this.search.type, this.search.status);
                 } catch (error) {
                     console.log(error);
                 }
@@ -70,6 +71,9 @@
         mounted() {
             this.refreshList();
             $('.header').addClass('scrolled');
+            $(window).on('scroll', function() {
+                $('.header').addClass('scrolled');
+            });
         },
     };
 </script>

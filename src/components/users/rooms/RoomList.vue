@@ -102,7 +102,7 @@
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="updateAddressModalLabel">Đặt phòng</h5>
+                            <h4 class="modal-title" id="updateAddressModalLabel">ĐẶT PHÒNG</h4>
                             <button type="button" class="btn-close"  @click="closeModel"></button>
                         </div>
                         <div class="modal-body">
@@ -126,6 +126,7 @@
     import CustomerService from "@/services/customer.service";
     import BookingService from "@/services/booking.service";
     import RoomService from "@/services/room.service";
+    import {mapGetters} from 'vuex';
 
     export default {
         props: {
@@ -161,6 +162,8 @@
                     'name': "",
                     'email': "",
                     'phone': "",
+                    'password': "123456",
+                    'status': 1
                 },
                 room: null,
                 booking: {
@@ -168,13 +171,17 @@
                     'checkout_date': "",
                     'customer_id': "",
                     'room_id': "",
-                    'num_of_guests': 2,
+                    'num_of_guests': "",
                     'total_price': "",
-                    'status': 'Đang chờ xử lý'
+                    'status': 'Đang chờ xử lý',
+                    'paid': false
                 },
                 roomsList: this.rooms,
                 searchLocal: this.search,
             }
+        },
+        computed: {
+            ...mapGetters(['getUser'])
         },
         methods: {
             async openModel(id) {
@@ -203,10 +210,22 @@
                         this.room = response;
                         this.booking.checkin_date = this.search.checkin_date;
                         this.booking.checkout_date = this.search.checkout_date;
-                        this.booking.num_of_guests = this.search.num_of_guests;
+                        this.booking.num_of_guests = response.capacity;
                         this.booking.room_id = response._id;
-                        this.booking.total_price = response.price;
 
+                        const oneDay = 24 * 60 * 60 * 1000;
+                        const checkinDate = new Date(this.booking.checkin_date);
+                        const checkoutDate = new Date(this.booking.checkout_date);
+                        const diffDays = Math.round(Math.abs((checkinDate - checkoutDate) / oneDay));
+
+                        this.booking.total_price = response.price*diffDays + 250000;
+                        
+                        if(this.getUser) {
+                            this.customer.email = this.getUser.email;
+                            this.customer.name = this.getUser.name;
+                            this.customer.phone = this.getUser.phone;
+
+                        }
                         this.myModel = true;
                     }
                 });
@@ -224,40 +243,55 @@
                 this.customer.phone = ""
             },
             async createBooking(data) {
-                try {      
-                    await CustomerService.create(data.customer).then(async (response) => {
-                            this.booking.customer_id = response._id;
-
-                            await BookingService.create(data.booking).then(async (response1) => {
-                                const Toast = Swal.mixin({
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                                }
-                                
-                            })
-
+                const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                })
+                try {     
+                    if(this.getUser) {
+                        this.booking.customer_id = this.getUser._id;
+                        await BookingService.create(data.booking).then(async () => {
                             this.roomsList = await RoomService.getAll();
-
                             Toast.fire({
                                 icon: 'success',
                                 title: 'Đặt phòng thành công.'
-                            })  
-
-                            this.myModel = false;
-                            this.reset();
+                            })
                         })
 
-                    });  
-                    
+                        this.myModel = false;
+                        this.reset();
+                    } else {
+                        await CustomerService.register(data.customer).then(async (response) => {
+                            this.booking.customer_id = response._id;
+                            await BookingService.create(data.booking).then(async () => {
+                                this.roomsList = await RoomService.getAll();
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Đặt phòng thành công.'
+                                })
+                            })
+    
+                            this.myModel = false;
+                            this.reset();
+    
+                        });  
+                    }
 
                 } catch (error) {
                     console.log(error);
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Vui lòng chọn ngày nhận và ngày trả phòng!'
+                    })
+                    this.myModel = false;
+                    this.reset();
                 }
             },
         },
@@ -266,6 +300,9 @@
 
 
 <style>
+.modal-dialog-scrollable .modal-content {
+    padding: 10px;
+}
 .accordion {
   display: flex;
   flex-direction: column;
@@ -381,6 +418,10 @@
 
 .error-feedback {
   color: red;
+}
+
+.modal-content {
+    background-color: #f4f2ed;
 }
 
 </style>

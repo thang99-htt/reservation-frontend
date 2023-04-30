@@ -2,7 +2,7 @@
     <div class="account-login">
         <form method="POST" action="" class="card login-form">
             <div class="title">
-                <h3>ADMIN ĐĂNG NHẬP</h3>
+                <h3>ĐĂNG NHẬP</h3>
                 <p>
                     Bạn có thể đăng nhập bằng tài khoản mạng xã hội hoặc địa chỉ email của mình.
                 </p>
@@ -31,7 +31,7 @@
             <div class="alt-option">
                 <span>Or</span>
             </div>
-            <p class="error-feedback" v-if="error" > {{  error }}</p>
+            <p class="text-danger" v-if="error" > {{  error }}</p>
             <LoginForm
                 @submit:login="createLogin"
             />
@@ -41,52 +41,70 @@
 </template>
 
 <script>
-import LoginForm from '@/components/auth/LoginForm.vue';
-import AuthService from "@/services/auth.service";
+	import $ from 'jquery'
+    import LoginForm from '@/components/auth/LoginForm.vue';
+    import CustomerService from "@/services/customer.service";
 
-export default {
-  components: { 
-    LoginForm 
-  },
-  data() {
-    return {
-        error: '',
-    }
-  },
-  methods: {
-    async createLogin(form) {
-        try {
-            await AuthService.login(form).then((response) => {
-                localStorage.setItem('tokenAdmin', response.token);
-                this.$store.dispatch('updateAdmin', response);
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    }
-                })
-    
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Đăng nhập thành công.'
-                })
-
-                this.$router.push({ name: "dashboard" });
-            });
+    export default {
+        components: { 
+            LoginForm 
+        },
+        data() {
+            return {
+                error: '',
+            }
+        },
+        
+        methods: {
+            async createLogin(form) {
+                try {
+                    await CustomerService.login(form).then((response) => {
+                        console.log(response)
+                        localStorage.setItem('tokenUser', response.token);
+                        this.$store.dispatch('updateUser', response);
+                        
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer)
+                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            }
+                        })
             
-        } catch (error) {            
-            this.error = "Email hoặc mật khẩu không đúng.";
-            console.log(error);
-        }
-    },
+                        if(response) {
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Đăng nhập thành công.'
+                            })
+                        } else {
+                            Toast.fire({
+                            icon: 'warning',
+                            title: 'Tài khoản bị khóa tạm thời.'
+                        })
+                        }
 
-  },
-}
+                        this.$router.push({ name: "home" });
+                    });
+                    
+                } catch (error) {            
+                    if(error.response.data.message == 'Email or password is incorrect') {
+                        this.error = "Email hoặc mật khẩu không đúng.";
+                    } else if(error.response.data.message == 'Account is temporarily locked') {
+                        this.error = "Tài khoản bị khóa tạm thời.";
+                    }
+                    
+                    console.log(error);
+                }            
+            },
+        },
+        mounted() {
+            $('.header').addClass('scrolled');
+        },
+    }
 </script>
 
 <style scoped>

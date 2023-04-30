@@ -1,5 +1,5 @@
 <template>
-    <aside class="main-sidebar">
+    <aside class="main-sidebar pt-0">
       <section class="sidebar">
         <div class="user-panel">
           <div class="pull-left image">
@@ -7,7 +7,7 @@
           </div>
           <div class="pull-left info">
             <div class="user_info">
-              <h6>HT Thang</h6>
+              <h6 v-if="getAdmin">{{ getAdmin.name }}</h6>
               <p><span class="online_animation"></span> Online</p>
             </div>
           </div>
@@ -36,16 +36,21 @@
       <!-- /.sidebar -->
     </aside>
 </template>
-<script>
-  import SidebarMenu from './SidebarMenu.vue';
 
-  export default {
-    name: 'Sidebar',
-    components: { 
-      SidebarMenu 
-    },
-  }
+<script>
+    import SidebarMenu from './SidebarMenu.vue';
+    import {mapGetters} from 'vuex';
+    import { mapActions } from 'vuex'
+    export default {
+      components: { 
+        SidebarMenu 
+      },
+      computed: {
+        ...mapGetters(['getAdmin']),
+      }
+    };
 </script>
+
 <style scope="local">
   .user-panel .image img {
     border-radius: 50%;

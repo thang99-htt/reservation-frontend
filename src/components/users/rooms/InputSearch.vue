@@ -6,34 +6,41 @@
             <div class="d-flex flex-xl-row flex-column align-items-start justify-content-start">
                 <div class="booking_input_container d-flex flex-lg-row flex-column align-items-start justify-content-start">
                     <div>
+                        <label for="">Ngày nhận</label>
                         <input 
-                            type="text" onfocus="(this.type='date')" 
-                            class="datepicker booking_input booking_input_a booking_in" 
-                            placeholder="Ngày nhận"
+                            type="date"
+                            class="datepicker booking_input booking_input_a booking_in"
                             v-model="searchLocal.checkin_date">
                     </div>
                     <div>
+                        <label for="">Ngày trả</label>
                         <input 
-                            type="text" onfocus="(this.type='date')" 
+                            type="date"
                             class="datepicker booking_input booking_input_a booking_out" 
-                            placeholder="Ngày trả"
                             v-model="searchLocal.checkout_date"
                             >
                         </div>
                     <div>
+                        <label for="">Số người</label>
                         <select name="" id="" class="booking_input booking_input_b" v-model="searchLocal.num_of_guests">
-                            <option disabled value="">Số người</option>
                             <option v-for="number in numbers" :value="number">{{ number }}</option>
                         </select>
                     </div>
                     <div>
+                        <label for="">Loại phòng</label>
                         <select name="" id="" class="booking_input booking_input_b" v-model="searchLocal.type">
-                            <option disabled value="">Phòng</option>
                             <option v-for="typ in types" :value="typ">{{ typ }}</option>
                         </select>
                     </div>
+                    <div>
+                        <label for="">Tình trạng phòng</label>
+                        <select name="" id="" class="booking_input booking_input_b" v-model="searchLocal.status">
+                            <option :value=true>Còn chỗ</option>
+                            <option :value=false>Hết chỗ</option>
+                        </select>
+                    </div>
                 </div>
-                <div><button class="booking_button trans_200" @click="submit">Tìm kiếm</button></div>
+                <div><button class="booking_button trans_200 mt-4" @click="submit">Tìm kiếm</button></div>
             </div>
         </div>
     </Form>    

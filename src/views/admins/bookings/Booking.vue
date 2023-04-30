@@ -102,6 +102,7 @@
             async retrieveBookings() {
                 try {
                     this.bookings = await BookingService.getAll();
+                    this.bookings.reverse();
                 } catch (error) {
                     console.log(error);
                 }

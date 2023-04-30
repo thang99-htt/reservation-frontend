@@ -9,18 +9,18 @@
     </li>
     <li class="pageLink">
       <router-link to="/admin/rooms">
-        <i class="fa fa-th-large"></i>
+        <i class="fa fa-home"></i>
         <span class="page">Phòng</span>
       </router-link>
     </li>
     <li class="pageLink">
       <router-link to="/admin/bookings">
         <i class="fa fa-book"></i>
-        <span class="page">Đơn đặt</span>
+        <span class="page">Đơn đặt phòng</span>
       </router-link>
     </li>
     <li class="pageLink">
-      <router-link to="/admin/products">
+      <router-link to="/admin/customers">
         <i class="fa fa-user"></i>
         <span class="page">Khách hàng</span>
       </router-link>

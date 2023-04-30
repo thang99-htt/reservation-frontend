@@ -17,6 +17,8 @@
                 <th aria-label="Browser: activate to sort column ascending" colspan="1" rowspan="1" aria-controls="example1"
                     tabindex="0" class="sorting">Ngày trả</th>
                 <th aria-label="Browser: activate to sort column ascending" colspan="1" rowspan="1" aria-controls="example1"
+                    tabindex="0" class="sorting" style="width: 100px;">Thanh toán</th>
+                <th aria-label="Browser: activate to sort column ascending" colspan="1" rowspan="1" aria-controls="example1"
                     tabindex="0" class="sorting">Trạng thái</th>
                 <th aria-label="Browser: activate to sort column ascending" colspan="1" rowspan="1" aria-controls="example1"
                     tabindex="0" class="sorting" style="width: 150px;">Tùy chọn</th>
@@ -34,6 +36,14 @@
                 <td>{{ booking.checkin_date }}</td>
                 <td>{{ booking.checkout_date }}</td>
                 <td>
+                    <span v-if="booking.paid == true" class="text-success">
+                        Đã thanh toán
+                    </span>
+                    <span v-else class="text-danger">
+                        Chưa thanh toán
+                    </span>
+                </td>
+                <td>
                     <button v-if="booking.status == 'Đang chờ xử lý'" class="btn-booking-status booking-status1"
                         @click="updateStatus(booking)">
                         {{ booking.status }}
@@ -42,7 +52,7 @@
                         @click="updateStatus(booking)">
                         {{ booking.status }}
                     </button>
-                    <button v-if="booking.status == 'Đã hủy'" class="btn-booking-status booking-status3"
+                    <button v-if="booking.status == 'Đã hủy'" :disabled="true" class="btn-booking-status booking-status3"
                         @click="updateStatus(booking)">
                         {{ booking.status }}
                     </button>
@@ -50,7 +60,7 @@
                         @click="updateStatus(booking)">
                         {{ booking.status }}
                     </button>
-                    <button v-if="booking.status == 'Đã hoàn thành'" class="btn-booking-status booking-status5"
+                    <button v-if="booking.status == 'Đã hoàn thành'" :disabled="true" class="btn-booking-status booking-status5"
                         @click="updateStatus(booking)">
                         {{ booking.status }}
                     </button>
@@ -114,14 +124,42 @@ export default {
             this.bookingsList = [...newVal]; // Sao chép mảng mới để tránh thay đổi trực tiếp giá trị của prop
             this.$nextTick(() => {
                 $('.example1').DataTable().destroy();
-                $('.example1').DataTable();
+                $(".example1").DataTable({
+                    "language": {
+                        "search": "Tìm kiếm:",
+                        "loadingRecords": "Đang tải...",
+                        "zeroRecords": "Không tìm thấy kết quả",
+                        "lengthMenu": "Hiển thị _MENU_ bản ghi",
+                        "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
+                        "paginate": {
+                            "first": "Trang đầu",
+                            "last": "Trang cuối",
+                            "next": "Trang sau",
+                            "previous": "Trang trước"
+                        }
+                    }
+                })
             });
         },
     },
     mounted() {
         this.bookingsList = [...this.bookings];
         this.$nextTick(() => {
-            $('.example1').DataTable();
+            $(".example1").DataTable({
+                    "language": {
+                        "search": "Tìm kiếm:",
+                        "loadingRecords": "Đang tải...",
+                        "zeroRecords": "Không tìm thấy kết quả",
+                        "lengthMenu": "Hiển thị _MENU_ bản ghi",
+                        "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
+                        "paginate": {
+                            "first": "Trang đầu",
+                            "last": "Trang cuối",
+                            "next": "Trang sau",
+                            "previous": "Trang trước"
+                        }
+                    }
+                })
         })
     },
     beforeUpdate() {
@@ -140,7 +178,21 @@ export default {
             this.bookingsList = await BookingService.getAll();
             // cập nhật lại DataTable
             this.$nextTick(() => {
-                $('.example1').DataTable()
+                $(".example1").DataTable({
+                    "language": {
+                        "search": "Tìm kiếm:",
+                        "loadingRecords": "Đang tải...",
+                        "zeroRecords": "Không tìm thấy kết quả",
+                        "lengthMenu": "Hiển thị _MENU_ bản ghi",
+                        "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
+                        "paginate": {
+                            "first": "Trang đầu",
+                            "last": "Trang cuối",
+                            "next": "Trang sau",
+                            "previous": "Trang trước"
+                        }
+                    }
+                })
             });
         },
         formatPrice(value) {
@@ -166,7 +218,21 @@ export default {
 
                     // cập nhật lại DataTable
                     this.$nextTick(() => {
-                        $('.example1').DataTable()
+                        $(".example1").DataTable({
+                            "language": {
+                                "search": "Tìm kiếm:",
+                                "loadingRecords": "Đang tải...",
+                                "zeroRecords": "Không tìm thấy kết quả",
+                                "lengthMenu": "Hiển thị _MENU_ bản ghi",
+                                "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
+                                "paginate": {
+                                    "first": "Trang đầu",
+                                    "last": "Trang cuối",
+                                    "next": "Trang sau",
+                                    "previous": "Trang trước"
+                                }
+                            }
+                        })
                     });
 
                     Toast.fire({
@@ -196,7 +262,21 @@ export default {
                     BookingService.delete(id).then(() => {
                         this.bookingsList = this.bookingsList.filter(room => room._id !== id);
                         this.$nextTick(() => {
-                            $('.example1').DataTable()
+                            $(".example1").DataTable({
+                                "language": {
+                                    "search": "Tìm kiếm:",
+                                    "loadingRecords": "Đang tải...",
+                                    "zeroRecords": "Không tìm thấy kết quả",
+                                    "lengthMenu": "Hiển thị _MENU_ bản ghi",
+                                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
+                                    "paginate": {
+                                        "first": "Trang đầu",
+                                        "last": "Trang cuối",
+                                        "next": "Trang sau",
+                                        "previous": "Trang trước"
+                                    }
+                                }
+                            })
                         })
                         Swal.fire('Đã xóa thành công!', '', 'success');
                     });
@@ -208,10 +288,24 @@ export default {
                     await BookingService.updateStatus(booking._id).then(async (response) => {
                         // gán lại giá trị cho.bookingsList
                     this.bookingsList = await BookingService.getAll();
-
+                    this.bookingsList.reverse();
                     // cập nhật lại DataTable
                     this.$nextTick(() => {
-                        $('.example1').DataTable()
+                        $(".example1").DataTable({
+                            "language": {
+                                "search": "Tìm kiếm:",
+                                "loadingRecords": "Đang tải...",
+                                "zeroRecords": "Không tìm thấy kết quả",
+                                "lengthMenu": "Hiển thị _MENU_ bản ghi",
+                                "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
+                                "paginate": {
+                                    "first": "Trang đầu",
+                                    "last": "Trang cuối",
+                                    "next": "Trang sau",
+                                    "previous": "Trang trước"
+                                }
+                            }
+                        })
                     });
 
                     const Toast = Swal.mixin({
